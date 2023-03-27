@@ -15,6 +15,7 @@ import typing
 import sys
 
 
+
 # info is called when you create your Battlesnake on play.battlesnake.com
 # and controls your Battlesnake's appearance
 # TIP: If you open your Battlesnake URL in a browser you should see this data
@@ -23,7 +24,7 @@ def info() -> typing.Dict:
 
     return {
         "apiversion": "1",
-        "author": "",  # TODO: Your Battlesnake Username
+        "author": "MegaTron Snakinator",  # TODO: Your Battlesnake Username
         "color": "#888888",  # TODO: Choose color
         "head": "default",  # TODO: Choose head
         "tail": "default",  # TODO: Choose tail
@@ -34,10 +35,95 @@ def info() -> typing.Dict:
 def start(game_state: typing.Dict):
     print("GAME START")
 
-
 # end is called when your Battlesnake finishes a game
 def end(game_state: typing.Dict):
     print("GAME OVER\n")
+
+def follow(snake, head):
+    # print("supposidly previous ", head)
+    
+    snakeArr = snake["you"]["body"]
+    prev = snakeArr[0]
+    spot=1
+    while spot < snake["you"]["length"]:
+        # print("comparing ", prev, " to ", snakeArr[spot])
+        if prev == snakeArr[spot]:
+            
+            # print("same coord")
+            prev = snakeArr[spot] 
+        else:
+            hold = snakeArr[spot]
+            # print("HOLD = ", hold)
+            snakeArr[spot] = prev
+            prev = hold
+        spot = spot+1
+    
+         
+
+def moveSnake(snake, move):
+    if(move == 'up'):
+        prevHead = snake["you"]["head"]
+        print(prevHead)
+        snake["you"]["head"]["y"] = snake["you"]["head"]["y"]+1
+        
+        print(prevHead)
+        follow(snake, prevHead)
+        snake["you"]["body"][0] = snake["you"]["head"]
+        print("after",snake["you"]["body"])
+    elif(move== 'down'):
+        prevHead = snake["you"]["head"]
+        print(prevHead)
+        snake["you"]["head"]["y"] = snake["you"]["head"]["y"]-1
+        
+        print(prevHead)
+        follow(snake, prevHead)
+        snake["you"]["body"][0] = snake["you"]["head"]
+        print("after",snake["you"]["body"])
+    elif(move=='left'):
+        prevHead = snake["you"]["head"]
+        print(prevHead)
+        snake["you"]["head"]["x"] = snake["you"]["head"]["x"]-1
+        
+        print(prevHead)
+        follow(snake, prevHead)
+        snake["you"]["body"][0] = snake["you"]["head"]
+        print("after",snake["you"]["body"])
+    elif(move =='right'):
+        prevHead = snake["you"]["head"]
+        print(prevHead)
+        snake["you"]["head"]["x"] = snake["you"]["head"]["x"]+1
+        
+        print(prevHead)
+        follow(snake, prevHead)
+        snake["you"]["body"][0] = snake["you"]["head"]
+        print("after",snake["you"]["body"])
+
+            
+    # elif (move == 'left'):
+# def apply(gamestate, move):
+    
+
+
+
+def minimax(gameState, depth, maximizingPlayer ):
+    move_option =  ['down','up', 'left', 'right']
+    print(gameState)
+    if depth == 0 or gameState.is_over():
+        return #the heuristic value of current state
+    if (maximizingPlayer==True):
+        value = 00000000000
+        bestMove = None
+        for x in move_option:
+            newState = gameState.apply(move_option)
+            value, bestMove = max(value, minimax(newState, depth-1, False))
+        return (value, bestMove)
+    # else # minimizing player
+    #     value = -122222
+    #     bestMove = None
+    #     for each child of node do
+    #         newState = gameState.apply(move_option)
+    #         value, bestMove := min(value, minimax(newState, depth-1, True))
+    #     return (value, best_move)
 
 
 # move is called on every turn and returns your next move
@@ -62,16 +148,19 @@ def move(game_state: typing.Dict) -> typing.Dict:
 
     elif my_neck["y"] > my_head["y"]:  # Neck is above head, don't move up
         is_move_safe["up"] = False
-
+    # print(game_state)
     # TODO: Step 1 - Prevent your Battlesnake from moving out of bounds
-    # board_width = game_state['board']['width']
-    # board_height = game_state['board']['height']
+    board_width = game_state['board']['width']
+    board_height = game_state['board']['height']
 
     # TODO: Step 2 - Prevent your Battlesnake from colliding with itself
-    # my_body = game_state['you']['body']
+    my_body = game_state['you']['body']
+    length = game_state['you']['length']
+    print(length)
+    print(my_body)
 
     # TODO: Step 3 - Prevent your Battlesnake from colliding with other Battlesnakes
-    # opponents = game_state['board']['snakes']
+    opponents = game_state['board']['snakes']
 
     # Are there any safe moves left?
     safe_moves = []
@@ -87,10 +176,13 @@ def move(game_state: typing.Dict) -> typing.Dict:
     next_move = random.choice(safe_moves)
 
     # TODO: Step 4 - Move towards food instead of random, to regain health and survive longer
-    # food = game_state['board']['food']
-
-    print(f"MOVE {game_state['turn']}: {next_move}")
-    return {"move": next_move}
+    food = game_state['board']['food']
+    # game_state.apply('up')
+    move = 'down'
+    print("BEFORE",game_state["you"]["body"])
+    moveSnake(game_state, move)
+    print(f"MOVE {game_state['turn']}: {move}")
+    return {"move": move}
 
 
 # Start server when `python main.py` is run
