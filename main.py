@@ -13,7 +13,7 @@
 import random
 import typing
 import sys
-
+import copy
 
 
 # info is called when you create your Battlesnake on play.battlesnake.com
@@ -63,40 +63,40 @@ def follow(snake, head):
 def moveSnake(snake, move):
     if(move == 'up'):
         prevHead = snake["you"]["head"]
-        print(prevHead)
+
         snake["you"]["head"]["y"] = snake["you"]["head"]["y"]+1
         
-        print(prevHead)
+
         follow(snake, prevHead)
         snake["you"]["body"][0] = snake["you"]["head"]
-        print("after",snake["you"]["body"])
+
     elif(move== 'down'):
         prevHead = snake["you"]["head"]
-        print(prevHead)
+
         snake["you"]["head"]["y"] = snake["you"]["head"]["y"]-1
         
-        print(prevHead)
+
         follow(snake, prevHead)
         snake["you"]["body"][0] = snake["you"]["head"]
-        print("after",snake["you"]["body"])
+
     elif(move=='left'):
         prevHead = snake["you"]["head"]
-        print(prevHead)
+
         snake["you"]["head"]["x"] = snake["you"]["head"]["x"]-1
         
-        print(prevHead)
+
         follow(snake, prevHead)
         snake["you"]["body"][0] = snake["you"]["head"]
-        print("after",snake["you"]["body"])
+
     elif(move =='right'):
         prevHead = snake["you"]["head"]
-        print(prevHead)
+
         snake["you"]["head"]["x"] = snake["you"]["head"]["x"]+1
         
-        print(prevHead)
+
         follow(snake, prevHead)
         snake["you"]["body"][0] = snake["you"]["head"]
-        print("after",snake["you"]["body"])
+    return snake
 
             
     # elif (move == 'left'):
@@ -107,15 +107,19 @@ def moveSnake(snake, move):
 
 def minimax(gameState, depth, maximizingPlayer ):
     move_option =  ['down','up', 'left', 'right']
-    print(gameState)
-    if depth == 0 or gameState.is_over():
+    # print(gameState)
+    if depth == 0: #gamestate = terminal
         return #the heuristic value of current state
     if (maximizingPlayer==True):
         value = 00000000000
         bestMove = None
+        print("STARTING POINT", gameState["you"]['body'])
         for x in move_option:
-            newState = gameState.apply(move_option)
-            value, bestMove = max(value, minimax(newState, depth-1, False))
+            newState = copy.deepcopy(gameState)
+            newState = moveSnake(newState, x)
+            
+            # print(x, "  - ",newState["you"]["body"])
+            # value, bestMove = max(value, minimax(newState, depth-1, False))
         return (value, bestMove)
     # else # minimizing player
     #     value = -122222
@@ -156,8 +160,8 @@ def move(game_state: typing.Dict) -> typing.Dict:
     # TODO: Step 2 - Prevent your Battlesnake from colliding with itself
     my_body = game_state['you']['body']
     length = game_state['you']['length']
-    print(length)
-    print(my_body)
+
+
 
     # TODO: Step 3 - Prevent your Battlesnake from colliding with other Battlesnakes
     opponents = game_state['board']['snakes']
@@ -178,8 +182,8 @@ def move(game_state: typing.Dict) -> typing.Dict:
     # TODO: Step 4 - Move towards food instead of random, to regain health and survive longer
     food = game_state['board']['food']
     # game_state.apply('up')
-    move = 'down'
-    print("BEFORE",game_state["you"]["body"])
+    # move = 'down'
+    minimax(game_state, 2, True)
     moveSnake(game_state, move)
     print(f"MOVE {game_state['turn']}: {move}")
     return {"move": move}
