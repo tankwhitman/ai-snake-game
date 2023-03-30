@@ -15,6 +15,7 @@ import typing
 import sys
 import copy
 import heuristic
+import random
 
 
 # info is called when you create your Battlesnake on play.battlesnake.com
@@ -105,15 +106,18 @@ def moveSnake(snake, move):
 
 
 
-def minimax(gameState, depth, maximizingPlayer ):
+def minimax(gameState, depth, maximizingPlayer,value, move ):
     #if there are no optimal moves, choose a random safe move :)
 
-    move_option =  heuristic.get_safe_moves( gameState["you"]["body"], gameState["board"] )#['down','up', 'left', 'right']
-
-    if depth == 0: #gamestate = terminal
-        return #the heuristic value of current state
+    
+    # print(gameState["board"]["snakes"])
+    if depth == 0 or len(gameState['board']['snakes']) == 1: #gamestate = terminal
+        # print("HERES YOUR PROBLEM")
+        return  value, move#the heuristic value of current state
     if (maximizingPlayer==True):
-        value = 00000000000
+        move_option =  heuristic.get_safe_moves( gameState["you"]["body"], gameState["board"] )#['down','up', 'left', 'right']
+        
+        value = -1000000
         bestMove = None
         # print("STARTING POINT", gameState["you"]['body'])
         
@@ -123,27 +127,61 @@ def minimax(gameState, depth, maximizingPlayer ):
             newState = moveSnake(newState, x)
             # print("MOVING: ", x, " " ,newState["you"]["head"])
             #heuristic_calc(food_dist_me, food_dist_opp, opp_dist):
-            value = []
+            foodValueList = []
             for food in gameState["board"]["food"]:
-                value.append(heuristic.heuristic_calc(heuristic.distance_from_food(food, newState["you"]["head"]), 
+                foodValueList.append(heuristic.heuristic_calc(heuristic.distance_from_food(food, newState["you"]["head"]), 
                                                       heuristic.distance_from_food(food, newState["board"]["snakes"][1]["head"]),
                                                       heuristic.distance_from_opp(newState["you"]["head"], newState["board"]["snakes"][1]["body"])))
             
-            moveResults[x] = max(value)
+            value = max(foodValueList)
+            moveResults[x] = max(foodValueList)
+            bestMove = max(moveResults, key=moveResults.get)
+            minimaxResult = minimax(newState, depth-1, False,value, bestMove)
+            value = max(value, minimaxResult[0])
+
+        
         bestMove = max(moveResults, key=moveResults.get)
-        print(moveResults)
-        print(bestMove)
+
+        if(moveResults[bestMove] == -1):
+            bestMove = random.choice(move_option)
         
             # print(x, "  - ",newState["you"]["body"])
-            # value, bestMove = max(value, minimax(newState, depth-1, False))
-        return (bestMove) # value, bestmove
-    # else # minimizing player
-    #     value = -122222
-    #     bestMove = None
-    #     for each child of node do
-    #         newState = gameState.apply(move_option)
-    #         value, bestMove := min(value, minimax(newState, depth-1, True))
-    #     return (value, best_move)
+        
+        return (value, bestMove) # value, bestmove
+    else: # minimizing player
+        
+        move_option =  heuristic.get_safe_moves( gameState["board"]["snakes"][1]["body"], gameState["board"] )#['down','up', 'left', 'right']
+        
+        value = 10000000000
+        bestMove = None
+        # print("STARTING POINT", gameState["you"]['body'])
+        
+        moveResults = {'up': -1, 'down': -1, 'left': -1, 'right': -1}
+        for x in move_option:
+            newState = copy.deepcopy(gameState)
+            newState = moveSnake(newState, x)
+            
+            foodValueList = []
+            for food in gameState["board"]["food"]:
+                foodValueList.append(heuristic.heuristic_calc(heuristic.distance_from_food(food, newState["board"]["snakes"][1]["head"]), 
+                                                      heuristic.distance_from_food(food, newState["you"]["head"]),
+                                                      heuristic.distance_from_opp(newState["board"]["snakes"][1]["head"], newState["you"]["body"] )))
+            
+            # moveResults[x] = min(value)
+            # print(newState)
+            # print(value, minimax(newState, depth-1, True,value,move))
+            minimaxResult = minimax(newState, depth-1, True,value,bestMove)
+            value = min(value, minimaxResult[0])
+
+        
+        bestMove = max(moveResults, key=moveResults.get)
+        
+        # print(moveResults)
+        # print(bestMove)
+        if(moveResults[bestMove] == -1):
+            bestMove = random.choice(move_option)
+
+        return (value, bestMove)
 
 
 # move is called on every turn and returns your next move
@@ -151,58 +189,11 @@ def minimax(gameState, depth, maximizingPlayer ):
 # See https://docs.battlesnake.com/api/example-move for available data
 def move(game_state: typing.Dict) -> typing.Dict:
 
-    # is_move_safe = {"up": True, "down": True, "left": True, "right": True}
+    print(game_state['turn'])
+    move = minimax(game_state, 4, True,0, 'up')
 
-    # # We've included code to prevent your Battlesnake from moving backwards
-    # my_head = game_state["you"]["body"][0]  # Coordinates of your head
-    # my_neck = game_state["you"]["body"][1]  # Coordinates of your "neck"
-
-    # if my_neck["x"] < my_head["x"]:  # Neck is left of head, don't move left
-    #     is_move_safe["left"] = False
-
-    # elif my_neck["x"] > my_head["x"]:  # Neck is right of head, don't move right
-    #     is_move_safe["right"] = False
-
-    # elif my_neck["y"] < my_head["y"]:  # Neck is below head, don't move down
-    #     is_move_safe["down"] = False
-
-    # elif my_neck["y"] > my_head["y"]:  # Neck is above head, don't move up
-    #     is_move_safe["up"] = False
-    # # print(game_state)
-    # # TODO: Step 1 - Prevent your Battlesnake from moving out of bounds
-    # board_width = game_state['board']['width']
-    # board_height = game_state['board']['height']
-
-    # # TODO: Step 2 - Prevent your Battlesnake from colliding with itself
-    # my_body = game_state['you']['body']
-    # length = game_state['you']['length']
-
-
-
-    # # TODO: Step 3 - Prevent your Battlesnake from colliding with other Battlesnakes
-    # opponents = game_state['board']['snakes']
-
-    # # Are there any safe moves left?
-    # safe_moves = []
-    # for move, isSafe in is_move_safe.items():
-    #     if isSafe:
-    #         safe_moves.append(move)
-
-    # if len(safe_moves) == 0:
-    #     print(f"MOVE {game_state['turn']}: No safe moves detected! Moving down")
-    #     return {"move": "down"}
-
-    # Choose a random move from the safe ones
-    # next_move = random.choice(safe_moves)
-
-    # TODO: Step 4 - Move towards food instead of random, to regain health and survive longer
-    food = game_state['board']['food']
-    # game_state.apply('up')
-    # move = 'down'
-    move = minimax(game_state, 2, True)
-
-    print(f"MOVE {game_state['turn']}: {move}")
-    return {"move": move}
+    print(f"MOVE {game_state['turn']}: {move[1]}")
+    return {"move": move[1]}
 
 
 # Start server when `python main.py` is run

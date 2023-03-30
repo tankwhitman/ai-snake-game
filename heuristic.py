@@ -57,6 +57,7 @@ def get_safe_moves(body, board):
 
 def distance_from_food(food, head):
     dist = 0
+    # print(head["x"])
     xdist = abs(head["x"]-food["x"])
     ydist = abs(head["y"]-food["y"])
     dist = xdist+ydist
