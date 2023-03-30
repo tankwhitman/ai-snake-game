@@ -67,20 +67,27 @@ def distance_from_opp(head, snake):
     return dist
     # Calculate distance from our head to the nearest part of the other snake
     
-def heuristic_calc(food_dist_me, food_dist_opp):
+def heuristic_calc(food_dist_me, food_dist_opp, opp_dist):
+    # Highest number will be the best heuristic
     point = 0
     if food_dist_me < food_dist_opp:
-        point = food_dist_me
+        point = abs(food_dist_me - 100)
     else:
         point = -1
-    if 
+    if opp_dist <= 3:
+        point = -1
     return point
 
-def best_moves(body, board, heuristic_calc):
-    # create a dictionary to store all connected moves
+def best_moves(body, board, snake_opp):
+    # create a linked list tree to store all connected moves
     # Loop checking heuristic of moves as they are created and assign them to each move
     # for checking heuristic, will also need to calc heuristic of every piece of food and assign the best from those
     # return list of move(s) with path to highest heuristic after looking 5 turns in the future
     # main code chooses move from here randomly, or if there arent any, from safe_moves randomly
     best_moves = []
+    future_moves = {}
+    safe1 = get_safe_moves(body, board)
+    for move1 in safe1:
+
+
     return best_moves
