@@ -23,14 +23,14 @@ def get_next(current_head, next_move):
 
     return future_head
 
-def avoid_walls(next_head):
+def avoid_walls(next_head, board_width, board_height):
     # Function to check if the coordinates of the next head will hit a wall or not
     result = True
 
     x = int(next_head["x"])
     y = int(next_head["y"])
 
-    if x<0 or y<0 or x>10 or y>10:
+    if x<0 or y<0 or x>=board_width or y>=board_height:
         result = False
     return result
 
@@ -63,8 +63,12 @@ def distance_from_food(food, head):
     return dist
 
 def distance_from_opp(head, snake):
-    dist = 0
-    return dist
+    dist_list = []
+    for part in snake:
+         xdist = abs(head["x"]-part["x"])
+         ydist = abs(head["y"]-part["y"])
+         dist_list.append(xdist+ydist)
+    return max(dist_list)
     # Calculate distance from our head to the nearest part of the other snake
     
 def heuristic_calc(food_dist_me, food_dist_opp, opp_dist):
@@ -78,16 +82,9 @@ def heuristic_calc(food_dist_me, food_dist_opp, opp_dist):
         point = -1
     return point
 
-def best_moves(body, board, snake_opp):
+
     # create a linked list tree to store all connected moves
     # Loop checking heuristic of moves as they are created and assign them to each move
     # for checking heuristic, will also need to calc heuristic of every piece of food and assign the best from those
     # return list of move(s) with path to highest heuristic after looking 5 turns in the future
     # main code chooses move from here randomly, or if there arent any, from safe_moves randomly
-    best_moves = []
-    future_moves = {}
-    safe1 = get_safe_moves(body, board)
-    for move1 in safe1:
-
-
-    return best_moves
