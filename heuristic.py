@@ -4,6 +4,7 @@ import random
 import typing
 import time
 import sys
+import numpy as np
 
 random_seed = None
 ### code used from given simple.py file
@@ -46,7 +47,7 @@ def get_safe_moves(body, board):
     safe_moves = []
     for guess in possible_moves:
         guess_coord = get_next(body[0], guess)
-        if avoid_walls(guess_coord, board["width"], board["height"]) and avoid_snakes(guess_coord, board["snakes"]): 
+        if avoid_walls(guess_coord, board["width"], board["height"]) and avoid_snakes(guess_coord, board["snakes"]) and avoid_self(guess_coord, body): 
             safe_moves.append(guess)
         elif len(body) > 1 and guess_coord == body[-1] and guess_coord not in body[:-1]:
            # The tail is also a safe place to go... unless there is a non-tail segment there too
@@ -71,6 +72,27 @@ def distance_from_opp(head, snake):
          dist_list.append(xdist+ydist)
     return max(dist_list)
     # Calculate distance from our head to the nearest part of the other snake
+
+def avoid_self(guess_coord, body):
+  x_Cord = []
+  y_Cord = []
+  for segment in body:
+    x_Cord.append(segment["x"])
+    y_Cord.append(segment["y"])
+
+  np_x = np.array(x_Cord)
+  np_y = np.array(y_Cord)
+
+  if len(body) > 15:
+    if guess_coord["x"] > (np.bincount(np_x).argmax()) or guess_coord["x"] < (np.bincount(np_x).argmax()) or guess_coord["y"] > (np.bincount(np_y).argmax()) or guess_coord["y"] < (np.bincount(np_y).argmax()):
+      return True
+    return False
+  else:
+    return True
+  print(guess_coord)
+  print(x_Cord)
+  print(np.bincount(np_x).argmax())
+  
     
 def heuristic_calc(food_dist_me, food_dist_opp, opp_dist):
     # Highest number will be the best heuristic
