@@ -142,9 +142,11 @@ def minimax(gameState, depth, maximizingPlayer,value, move ):
         
         bestMove = max(moveResults, key=moveResults.get)
 
-        if(moveResults[bestMove] == -1):
-            bestMove = random.choice(move_option)
-        
+        # try:
+        #     if(moveResults[bestMove] == -1):
+        #         bestMove = random.choice(move_option)
+        # except:
+
             # print(x, "  - ",newState["you"]["body"])
         
         return (value, bestMove) # value, bestmove
@@ -167,9 +169,11 @@ def minimax(gameState, depth, maximizingPlayer,value, move ):
                                                       heuristic.distance_from_food(food, newState["you"]["head"]),
                                                       heuristic.distance_from_opp(newState["board"]["snakes"][1]["head"], newState["you"]["body"] )))
             
-            # moveResults[x] = min(value)
+            value = min(foodValueList)
+
+            moveResults[x] = min(foodValueList)
             # print(newState)
-            # print(value, minimax(newState, depth-1, True,value,move))
+            bestMove = min(moveResults, key=moveResults.get)
             minimaxResult = minimax(newState, depth-1, True,value,bestMove)
             value = min(value, minimaxResult[0])
 
@@ -178,8 +182,8 @@ def minimax(gameState, depth, maximizingPlayer,value, move ):
         
         # print(moveResults)
         # print(bestMove)
-        if(moveResults[bestMove] == -1):
-            bestMove = random.choice(move_option)
+        # if(moveResults[bestMove] == -1):
+        #     bestMove = random.choice(move_option)
 
         return (value, bestMove)
 

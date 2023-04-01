@@ -97,12 +97,17 @@ def avoid_self(guess_coord, body):
 def heuristic_calc(food_dist_me, food_dist_opp, opp_dist):
     # Highest number will be the best heuristic
     point = 0
-    if food_dist_me < food_dist_opp:
-        point = abs(food_dist_me - 100)
-    else:
-        point = -1
-    if opp_dist <= 3:
-        point = -1
+    # if food_dist_me < food_dist_opp:
+    #     point = abs(food_dist_me - 100)
+    # else:
+    #     point = -1
+    # if opp_dist <= 3:
+    #     point = -1
+
+    foodProbability = 1 / (1+food_dist_me)
+    enemyProbability = 1 / (1+opp_dist)
+
+    point = foodProbability * enemyProbability
     return point
 
 
