@@ -40,6 +40,7 @@ def avoid_snakes(next_head, snakes):
     for snake in snakes:
         if next_head in snake["body"][:-1]:
             result = False
+            # print("going to runinto an opponent")
     return result
 
 def get_safe_moves(body, board):
@@ -47,22 +48,35 @@ def get_safe_moves(body, board):
     safe_moves = []
     for guess in possible_moves:
         guess_coord = get_next(body[0], guess)
-        if avoid_walls(guess_coord, board["width"], board["height"]) and avoid_snakes(guess_coord, board["snakes"]) and avoid_self(guess_coord, body): 
-            safe_moves.append(guess)
-        elif len(body) > 1 and guess_coord == body[-1] and guess_coord not in body[:-1]:
+        # print("guess_coord:", guess_coord)
+        if(guess_coord["x"] > -1 and guess_coord["y"] >-1 ):
+            try:
+                if avoid_walls(guess_coord, board["width"], board["height"]) and avoid_snakes(guess_coord, board["snakes"]) and avoid_self(guess_coord, body): 
+                    safe_moves.append(guess)
+                elif len(body) > 1 and guess_coord == body[-1] and guess_coord not in body[:-1]:
            # The tail is also a safe place to go... unless there is a non-tail segment there too
-           safe_moves.append(guess)
+                    safe_moves.append(guess)
+            except:
+                print("ERROR: printing.... ", guess_coord)
     return safe_moves
 ### End of code used from simple.py file
 
 
 def distance_from_food(food, head):
     dist = 0
-    # print(head["x"])
     xdist = abs(head["x"]-food["x"])
     ydist = abs(head["y"]-food["y"])
     dist = xdist+ydist
     return dist
+
+def distance_from_self(head, self):
+    dist_list = []
+    for part in self:
+         xdist = abs(head["x"]-part["x"])
+         ydist = abs(head["y"]-part["y"])
+         dist_list.append(xdist+ydist)
+    return max(dist_list)
+    # Calculate distance from our head to the nearest part of the other snake
 
 def distance_from_opp(head, snake):
     dist_list = []
@@ -74,6 +88,7 @@ def distance_from_opp(head, snake):
     # Calculate distance from our head to the nearest part of the other snake
 
 def avoid_self(guess_coord, body):
+    
   x_Cord = []
   y_Cord = []
   for segment in body:
@@ -83,7 +98,9 @@ def avoid_self(guess_coord, body):
   np_x = np.array(x_Cord)
   np_y = np.array(y_Cord)
 
-  if len(body) > 15:
+#   if ()
+
+  if len(body) > 5:
     if guess_coord["x"] > (np.bincount(np_x).argmax()) or guess_coord["x"] < (np.bincount(np_x).argmax()) or guess_coord["y"] > (np.bincount(np_y).argmax()) or guess_coord["y"] < (np.bincount(np_y).argmax()):
       return True
     return False
@@ -94,20 +111,24 @@ def avoid_self(guess_coord, body):
   print(np.bincount(np_x).argmax())
   
     
-def heuristic_calc(food_dist_me, food_dist_opp, opp_dist):
-    # Highest number will be the best heuristic
-    point = 0
-    # if food_dist_me < food_dist_opp:
-    #     point = abs(food_dist_me - 100)
-    # else:
-    #     point = -1
-    # if opp_dist <= 3:
-    #     point = -1
-
-    foodProbability = 1 / (1+food_dist_me)
-    enemyProbability = 1 / (1+opp_dist)
-
-    point = foodProbability * enemyProbability
+def heuristic_calc(food_dist_me, food_dist_opp, opp_dist, self_dist): 
+    # Highest number will be the best heuristic 
+    point = 0 # Assign a weight to each factor 
+    w1 = 0.5 # Weight for food distance of me 
+    w2 = 0.2 # Weight for food distance of opponent 
+    w3 = 0.2 # Weight for enemy distance 
+    w4 = .1
+    # Calculate the inverse probabilities 
+    foodProbability_me = 1 / (1+food_dist_me) 
+    foodProbability_opp = 1 / (1+food_dist_opp) 
+    enemyProbability = 1 / (1+opp_dist) 
+    # Add the weighted probabilities to get the point value 
+    point = w1 * foodProbability_me + w2 * foodProbability_opp + w3 * enemyProbability + w4*self_dist
+    # Penalize states or actions that are too close to the enemy 
+    if opp_dist <= 3: 
+        point = -1 
+    if(opp_dist <=1):
+        point = -10000
     return point
 
 

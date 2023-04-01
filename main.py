@@ -109,14 +109,19 @@ def moveSnake(snake, move):
 def minimax(gameState, depth, maximizingPlayer,value, move ):
     #if there are no optimal moves, choose a random safe move :)
 
-    
+
     # print(gameState["board"]["snakes"])
     if depth == 0 or len(gameState['board']['snakes']) == 1: #gamestate = terminal
         # print("HERES YOUR PROBLEM")
         return  value, move#the heuristic value of current state
     if (maximizingPlayer==True):
-        move_option =  heuristic.get_safe_moves( gameState["you"]["body"], gameState["board"] )#['down','up', 'left', 'right']
-        
+        move_option =  heuristic.get_safe_moves( gameState["you"]["body"], gameState["board"] )#
+        item = ['down','up', 'left', 'right']
+        #make a not safe move option!
+        # if(len(move_option) < 4):
+        notsafe = set(item) - set(move_option)
+        #     for item in notsafe:
+        #         return (-1000000, item)
         value = -1000000
         bestMove = None
         # print("STARTING POINT", gameState["you"]['body'])
@@ -131,13 +136,17 @@ def minimax(gameState, depth, maximizingPlayer,value, move ):
             for food in gameState["board"]["food"]:
                 foodValueList.append(heuristic.heuristic_calc(heuristic.distance_from_food(food, newState["you"]["head"]), 
                                                       heuristic.distance_from_food(food, newState["board"]["snakes"][1]["head"]),
-                                                      heuristic.distance_from_opp(newState["you"]["head"], newState["board"]["snakes"][1]["body"])))
+                                                      heuristic.distance_from_opp(newState["you"]["head"], newState["board"]["snakes"][1]["body"]),
+                                                      heuristic.distance_from_self(newState['you']['head'], newState['you']['body'])))
             
             value = max(foodValueList)
             moveResults[x] = max(foodValueList)
             bestMove = max(moveResults, key=moveResults.get)
             minimaxResult = minimax(newState, depth-1, False,value, bestMove)
             value = max(value, minimaxResult[0])
+            if(value == minimaxResult[0]):
+                bestMove = minimaxResult[1]
+
 
         
         bestMove = max(moveResults, key=moveResults.get)
@@ -167,7 +176,8 @@ def minimax(gameState, depth, maximizingPlayer,value, move ):
             for food in gameState["board"]["food"]:
                 foodValueList.append(heuristic.heuristic_calc(heuristic.distance_from_food(food, newState["board"]["snakes"][1]["head"]), 
                                                       heuristic.distance_from_food(food, newState["you"]["head"]),
-                                                      heuristic.distance_from_opp(newState["board"]["snakes"][1]["head"], newState["you"]["body"] )))
+                                                      heuristic.distance_from_opp(newState["board"]["snakes"][1]["head"], newState["you"]["body"] ),
+                                                      heuristic.distance_from_self(newState["board"]["snakes"][1]["head"], newState["you"]["body"])))
             
             value = min(foodValueList)
 
@@ -194,7 +204,7 @@ def minimax(gameState, depth, maximizingPlayer,value, move ):
 def move(game_state: typing.Dict) -> typing.Dict:
 
     print(game_state['turn'])
-    move = minimax(game_state, 4, True,0, 'up')
+    move = minimax(game_state, 6, True,0, 'up')
 
     print(f"MOVE {game_state['turn']}: {move[1]}")
     return {"move": move[1]}
