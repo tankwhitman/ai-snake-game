@@ -122,6 +122,9 @@ def minimax(gameState, depth, maximizingPlayer,value, move ):
         notsafe = set(item) - set(move_option)
         #     for item in notsafe:
         #         return (-1000000, item)
+        if(len(move_option) ==0):
+            return (-5000000000, '')
+
         value = -1000000
         bestMove = None
         # print("STARTING POINT", gameState["you"]['body'])
@@ -137,15 +140,17 @@ def minimax(gameState, depth, maximizingPlayer,value, move ):
                 foodValueList.append(heuristic.heuristic_calc(heuristic.distance_from_food(food, newState["you"]["head"]), 
                                                       heuristic.distance_from_food(food, newState["board"]["snakes"][1]["head"]),
                                                       heuristic.distance_from_opp(newState["you"]["head"], newState["board"]["snakes"][1]["body"]),
-                                                      heuristic.distance_from_self(newState['you']['head'], newState['you']['body'])))
+                                                      heuristic.distance_from_food(newState['you']['head'], newState["board"]["snakes"][1]["head"])))
             
             value = max(foodValueList)
             moveResults[x] = max(foodValueList)
             bestMove = max(moveResults, key=moveResults.get)
             minimaxResult = minimax(newState, depth-1, False,value, bestMove)
-            value = max(value, minimaxResult[0])
-            if(value == minimaxResult[0]):
-                bestMove = minimaxResult[1]
+            if(minimaxResult[0]>0):
+                value = max(value, minimaxResult[0])
+                if(value == minimaxResult[0]):
+                    bestMove = minimaxResult[1]
+            
 
 
         
@@ -177,7 +182,7 @@ def minimax(gameState, depth, maximizingPlayer,value, move ):
                 foodValueList.append(heuristic.heuristic_calc(heuristic.distance_from_food(food, newState["board"]["snakes"][1]["head"]), 
                                                       heuristic.distance_from_food(food, newState["you"]["head"]),
                                                       heuristic.distance_from_opp(newState["board"]["snakes"][1]["head"], newState["you"]["body"] ),
-                                                      heuristic.distance_from_self(newState["board"]["snakes"][1]["head"], newState["you"]["body"])))
+                                                      heuristic.distance_from_food(newState["you"]["head"], newState["board"]["snakes"][1]["head"] )))
             
             value = min(foodValueList)
 

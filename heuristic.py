@@ -69,13 +69,7 @@ def distance_from_food(food, head):
     dist = xdist+ydist
     return dist
 
-def distance_from_self(head, self):
-    dist_list = []
-    for part in self:
-         xdist = abs(head["x"]-part["x"])
-         ydist = abs(head["y"]-part["y"])
-         dist_list.append(xdist+ydist)
-    return max(dist_list)
+
     # Calculate distance from our head to the nearest part of the other snake
 
 def distance_from_opp(head, snake):
@@ -84,6 +78,7 @@ def distance_from_opp(head, snake):
          xdist = abs(head["x"]-part["x"])
          ydist = abs(head["y"]-part["y"])
          dist_list.append(xdist+ydist)
+    # print("dist list", dist_list)
     return max(dist_list)
     # Calculate distance from our head to the nearest part of the other snake
 
@@ -111,19 +106,20 @@ def avoid_self(guess_coord, body):
   print(np.bincount(np_x).argmax())
   
     
-def heuristic_calc(food_dist_me, food_dist_opp, opp_dist, self_dist): 
+def heuristic_calc(food_dist_me, food_dist_opp, opp_dist, opp_head_dist): 
     # Highest number will be the best heuristic 
     point = 0 # Assign a weight to each factor 
     w1 = 0.5 # Weight for food distance of me 
-    w2 = 0.2 # Weight for food distance of opponent 
+    w2 = 0.1 # Weight for food distance of opponent 
     w3 = 0.2 # Weight for enemy distance 
-    w4 = .1
+    w4 = 0.2
     # Calculate the inverse probabilities 
     foodProbability_me = 1 / (1+food_dist_me) 
     foodProbability_opp = 1 / (1+food_dist_opp) 
     enemyProbability = 1 / (1+opp_dist) 
+    enemyHeadProbability = 1/ (1+opp_head_dist)
     # Add the weighted probabilities to get the point value 
-    point = w1 * foodProbability_me + w2 * foodProbability_opp + w3 * enemyProbability + w4*self_dist
+    point = w1 * foodProbability_me - w2 * foodProbability_opp - w3 * enemyProbability - w4*enemyHeadProbability
     # Penalize states or actions that are too close to the enemy 
     if opp_dist <= 3: 
         point = -1 
