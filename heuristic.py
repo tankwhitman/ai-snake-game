@@ -4,7 +4,7 @@ import random
 import typing
 import time
 import sys
-import numpy as np
+from collections import Counter
 
 random_seed = None
 ### code used from given simple.py file
@@ -49,15 +49,11 @@ def get_safe_moves(body, board):
     for guess in possible_moves:
         guess_coord = get_next(body[0], guess)
         # print("guess_coord:", guess_coord)
-        if(guess_coord["x"] > -1 and guess_coord["y"] >-1 ):
-            try:
-                if avoid_walls(guess_coord, board["width"], board["height"]) and avoid_snakes(guess_coord, board["snakes"]) and avoid_self(guess_coord, body): 
-                    safe_moves.append(guess)
-                elif len(body) > 1 and guess_coord == body[-1] and guess_coord not in body[:-1]:
-           # The tail is also a safe place to go... unless there is a non-tail segment there too
-                    safe_moves.append(guess)
-            except:
-                print("ERROR: printing.... ", guess_coord)
+        if avoid_walls(guess_coord, board["width"], board["height"]) and avoid_snakes(guess_coord, board["snakes"]): 
+            safe_moves.append(guess)
+        elif len(body) > 1 and guess_coord == body[-1] and guess_coord not in body[:-1]:
+        # The tail is also a safe place to go... unless there is a non-tail segment there too
+            safe_moves.append(guess)
     return safe_moves
 ### End of code used from simple.py file
 
@@ -82,6 +78,25 @@ def distance_from_opp(head, snake):
     return max(dist_list)
     # Calculate distance from our head to the nearest part of the other snake
 
+def distance_from_wall(head, board):
+    height = board['height']
+    width = board['width']
+
+    if head["x"] >= (width/2):
+       x_wall = width - head["x"]
+    else:
+        x_wall = head["x"]
+
+    if head['y'] >= height/2:
+        y_wall =  height - head['y']
+    else:
+        y_wall = head['y']    
+    
+    if x_wall > y_wall:
+        return x_wall
+    else:
+        return y_wall
+
 def avoid_self(guess_coord, body):
     
   x_Cord = []
@@ -90,41 +105,44 @@ def avoid_self(guess_coord, body):
     x_Cord.append(segment["x"])
     y_Cord.append(segment["y"])
 
-  np_x = np.array(x_Cord)
-  np_y = np.array(y_Cord)
+  # Use Counter to count the occurrences of each number
+  count_x = Counter(x_Cord)
+  count_y = Counter(y_Cord)
 
-#   if ()
+  x_avoid, count_of_most_common = count_x.most_common(1)[0]
+  y_avoid, count_of_most_common = count_y.most_common(1)[0]
 
   if len(body) > 5:
-    if guess_coord["x"] > (np.bincount(np_x).argmax()) or guess_coord["x"] < (np.bincount(np_x).argmax()) or guess_coord["y"] > (np.bincount(np_y).argmax()) or guess_coord["y"] < (np.bincount(np_y).argmax()):
+    if guess_coord["x"] > x_avoid or guess_coord["x"] < x_avoid or guess_coord["y"] > y_avoid or guess_coord["y"] < y_avoid:
       return True
     return False
   else:
     return True
-  print(guess_coord)
-  print(x_Cord)
-  print(np.bincount(np_x).argmax())
   
     
-def heuristic_calc(food_dist_me, food_dist_opp, opp_dist, opp_head_dist): 
+def heuristic_calc(food_dist_me, food_dist_opp, opp_dist, self_dist, wall_dist, you_len, opp_len): 
     # Highest number will be the best heuristic 
     point = 0 # Assign a weight to each factor 
-    w1 = 0.5 # Weight for food distance of me 
+    w1 = 0.25 # Weight for food distance of me 
     w2 = 0.1 # Weight for food distance of opponent 
-    w3 = 0.2 # Weight for enemy distance 
-    w4 = 0.2
+    w3 = 0.3 # Weight for enemy distance 
+    w4 = 0.1 # Weight for distance from self
+    w5 = 0.2 # Weight for distance from wall
     # Calculate the inverse probabilities 
     foodProbability_me = 1 / (1+food_dist_me) 
     foodProbability_opp = 1 / (1+food_dist_opp) 
     enemyProbability = 1 / (1+opp_dist) 
-    enemyHeadProbability = 1/ (1+opp_head_dist)
+    selfProbability = 1 / (1+self_dist)
+    wallProbability = 1 / (1+wall_dist)
     # Add the weighted probabilities to get the point value 
-    point = w1 * foodProbability_me - w2 * foodProbability_opp - w3 * enemyProbability - w4*enemyHeadProbability
+    point = w1 * foodProbability_me - w2 * foodProbability_opp - w3 * enemyProbability - w4 * selfProbability - w5 * wallProbability
     # Penalize states or actions that are too close to the enemy 
-    if opp_dist <= 3: 
-        point = -1 
-    if(opp_dist <=1):
-        point = -10000
+    # if opp_dist <= 3: 
+    #     point = -1 
+    # if(opp_dist <=1):
+    #     point = -10000
+    if you_len > opp_len:
+        point = 10000
     return point
 
 

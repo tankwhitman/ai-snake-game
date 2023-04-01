@@ -117,19 +117,16 @@ def minimax(gameState, depth, maximizingPlayer,value, move ):
     if (maximizingPlayer==True):
         move_option =  heuristic.get_safe_moves( gameState["you"]["body"], gameState["board"] )#
         item = ['down','up', 'left', 'right']
-        #make a not safe move option!
-        # if(len(move_option) < 4):
-        notsafe = set(item) - set(move_option)
-        #     for item in notsafe:
-        #         return (-1000000, item)
-        if(len(move_option) ==0):
-            return (-5000000000, '')
+        
+        
+        # if(len(move_option) ==0):
+        #     return (-5000000000, '')
 
         value = -1000000
         bestMove = None
         # print("STARTING POINT", gameState["you"]['body'])
         
-        moveResults = {'up': -1, 'down': -1, 'left': -1, 'right': -1}
+        moveResults = {'up': -10000, 'down': -10000, 'left': -10000, 'right': -10000}
         for x in move_option:
             newState = copy.deepcopy(gameState)
             newState = moveSnake(newState, x)
@@ -140,7 +137,10 @@ def minimax(gameState, depth, maximizingPlayer,value, move ):
                 foodValueList.append(heuristic.heuristic_calc(heuristic.distance_from_food(food, newState["you"]["head"]), 
                                                       heuristic.distance_from_food(food, newState["board"]["snakes"][1]["head"]),
                                                       heuristic.distance_from_opp(newState["you"]["head"], newState["board"]["snakes"][1]["body"]),
-                                                      heuristic.distance_from_food(newState['you']['head'], newState["board"]["snakes"][1]["head"])))
+                                                      heuristic.distance_from_opp(newState["you"]["head"], newState["you"]["body"][2:]),
+                                                      heuristic.distance_from_wall(newState["you"]["head"], newState["board"]),
+                                                      newState["you"]["length"],
+                                                      newState["board"]["snakes"][1]["length"]))
             
             value = max(foodValueList)
             moveResults[x] = max(foodValueList)
@@ -172,7 +172,7 @@ def minimax(gameState, depth, maximizingPlayer,value, move ):
         bestMove = None
         # print("STARTING POINT", gameState["you"]['body'])
         
-        moveResults = {'up': -1, 'down': -1, 'left': -1, 'right': -1}
+        moveResults = {'up': -10000, 'down': -10000, 'left': -10000, 'right': -10000}
         for x in move_option:
             newState = copy.deepcopy(gameState)
             newState = moveSnake(newState, x)
@@ -181,8 +181,11 @@ def minimax(gameState, depth, maximizingPlayer,value, move ):
             for food in gameState["board"]["food"]:
                 foodValueList.append(heuristic.heuristic_calc(heuristic.distance_from_food(food, newState["board"]["snakes"][1]["head"]), 
                                                       heuristic.distance_from_food(food, newState["you"]["head"]),
-                                                      heuristic.distance_from_opp(newState["board"]["snakes"][1]["head"], newState["you"]["body"] ),
-                                                      heuristic.distance_from_food(newState["you"]["head"], newState["board"]["snakes"][1]["head"] )))
+                                                      heuristic.distance_from_opp(newState["board"]["snakes"][1]["head"], newState["you"]["body"]),
+                                                      heuristic.distance_from_opp(newState["board"]["snakes"][1]["head"], newState["board"]["snakes"][1]["body"][2:]),
+                                                      heuristic.distance_from_wall(newState["board"]["snakes"][1]["head"], newState["board"]),
+                                                      newState["board"]["snakes"][1]["length"],
+                                                      newState["you"]["length"]))
             
             value = min(foodValueList)
 
@@ -190,7 +193,10 @@ def minimax(gameState, depth, maximizingPlayer,value, move ):
             # print(newState)
             bestMove = min(moveResults, key=moveResults.get)
             minimaxResult = minimax(newState, depth-1, True,value,bestMove)
-            value = min(value, minimaxResult[0])
+            if(minimaxResult[0] <0 ):
+                value = min(value, minimaxResult[0])
+                if(value == minimaxResult[0]):
+                    bestMove = minimaxResult[1]
 
         
         bestMove = max(moveResults, key=moveResults.get)
