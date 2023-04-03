@@ -44,7 +44,7 @@ def avoid_snakes(next_head, snakes):
     return result
 
 def get_safe_moves(body, board):
-    print(f"safe moves func..   {body}")
+
     possible_moves = ["up", "down", "left", "right"]
     safe_moves = []
     for guess in possible_moves:
@@ -55,7 +55,7 @@ def get_safe_moves(body, board):
         elif len(body) > 1 and guess_coord == body[-1] and guess_coord not in body[:-1]:
         # The tail is also a safe place to go... unless there is a non-tail segment there too
             safe_moves.append(guess)
-    print(f"safe moves func..   {body} and the safe moves are... {safe_moves}")
+
     return safe_moves
 ### End of code used from simple.py file
 
@@ -127,7 +127,7 @@ def heuristic_calc(food_dist_me, opp_dist, self_dist, wall_dist, you_len, opp_le
     # print(f"{get_next(body[0],guess_move)} is the next head in {body}")
     if get_next(body[0],guess_move) in body:
         # print('i will run intomyself')
-        return -9999999
+        return 9999999
 
 
 
@@ -153,7 +153,7 @@ def heuristic_calc(food_dist_me, opp_dist, self_dist, wall_dist, you_len, opp_le
     #     point = -10000
     # if you_len > opp_len:
     #     point = 10000
-    print('h calc',point)
+    # print('h calc',point)
     return point
 
 
