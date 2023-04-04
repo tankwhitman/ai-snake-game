@@ -100,13 +100,13 @@ def minimax(gameState, depth, maximizingPlayer, bestMove):
         # print(f"With {food} moves from food. my head is at ",gameState['you']['body'][0])
         value = heuristic.heuristic_calc(food,
                                 heuristic.distance_from_opp(gameState["board"]["snakes"][1]["head"], gameState["you"]["body"]),
-                                heuristic.distance_from_opp(gameState["board"]["snakes"][1]["head"], gameState["board"]["snakes"][1]["body"][2:]),
+                                heuristic.distance_from_opp(gameState["board"]["snakes"][0]["head"], gameState["board"]["snakes"][1]["body"][2:]),
                                 heuristic.distance_from_wall(gameState["board"]["snakes"][1]["head"], gameState["board"]),
                                 gameState["board"]["snakes"][1]["length"],
                                 gameState["you"]["length"],
                                 bestMove,
                                 gameState["you"]["body"])
-        print('best move:', bestMove, "with a value of", value)
+        # print('best move:', bestMove, "with a value of", value)
         return (value, bestMove)
     # except:
     #     print("game must be over")
@@ -140,10 +140,14 @@ def minimax(gameState, depth, maximizingPlayer, bestMove):
                 moveResults[eval[1]] = eval[0]
             x=x+1
         if(depth == highestDepth):
-            bestMove = max(moveResults, key=moveResults.get)
-
-            value = max(moveResults.values())
-        return (value, bestMove)
+          
+          bestMove = max(moveResults, key=moveResults.get) 
+            
+          maxEval = max(moveResults.values())
+          if(bestMove in move_option):
+            return (maxEval, bestMove)
+          return (random.choice(move_option), maxEval)
+        return (maxEval, bestMove)
     else:
         minEval = 999999
         #['down','up', 'left', 'right']

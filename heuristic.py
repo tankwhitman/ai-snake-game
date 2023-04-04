@@ -128,7 +128,9 @@ def heuristic_calc(food_dist_me, opp_dist, self_dist, wall_dist, you_len, opp_le
     if get_next(body[0],guess_move) in body:
         # print('i will run intomyself')
         return 9999999
-
+    
+    if food_dist_me ==1:
+        return -999999
 
 
 
@@ -145,7 +147,7 @@ def heuristic_calc(food_dist_me, opp_dist, self_dist, wall_dist, you_len, opp_le
     selfProbability = 1 / (1+self_dist)
     wallProbability = 1 / (1+wall_dist)
     # Add the weighted probabilities to get the point value w2 * foodProbability_opp
-    point = w1 * foodProbability_me  - w3 * enemyProbability + w4 * selfProbability + w5 * wallProbability
+    point = w1 * foodProbability_me  - w3 * enemyProbability - w4 * selfProbability - w5 * wallProbability
     # Penalize states or actions that are too close to the enemy 
     # if opp_dist <= 3: 
     #     point = -1 
