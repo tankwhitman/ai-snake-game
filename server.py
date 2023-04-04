@@ -4,11 +4,12 @@ import typing
 
 from flask import Flask
 from flask import request
+from flask_cors import CORS
 
 
 def run_server(handlers: typing.Dict):
     app = Flask("Battlesnake")
-
+    CORS(app)
     @app.get("/")
     def on_info():
         return handlers["info"]()

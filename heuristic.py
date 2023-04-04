@@ -26,14 +26,14 @@ def get_next(current_head, next_move):
 
 def avoid_walls(next_head, board_width, board_height):
     # Function to check if the coordinates of the next head will hit a wall or not
-    result = True
+
 
     x = int(next_head["x"])
     y = int(next_head["y"])
 
-    if x<0 or y<0 or x>=board_width or y>=board_height:
-        result = False
-    return result
+    if x>=0 and y>=0 and x<board_width and y<board_height:
+        return True
+    return False
 
 def avoid_snakes(next_head, snakes):
     result = True
@@ -44,6 +44,7 @@ def avoid_snakes(next_head, snakes):
     return result
 
 def get_safe_moves(body, board):
+
     possible_moves = ["up", "down", "left", "right"]
     safe_moves = []
     for guess in possible_moves:
@@ -54,6 +55,7 @@ def get_safe_moves(body, board):
         elif len(body) > 1 and guess_coord == body[-1] and guess_coord not in body[:-1]:
         # The tail is also a safe place to go... unless there is a non-tail segment there too
             safe_moves.append(guess)
+
     return safe_moves
 ### End of code used from simple.py file
 
@@ -120,29 +122,40 @@ def avoid_self(guess_coord, body):
     return True
   
     
-def heuristic_calc(food_dist_me, food_dist_opp, opp_dist, self_dist, wall_dist, you_len, opp_len): 
+def heuristic_calc(food_dist_me, opp_dist, self_dist, wall_dist, you_len, opp_len, guess_move, body): 
     # Highest number will be the best heuristic 
+    # print(f"{get_next(body[0],guess_move)} is the next head in {body}")
+    if get_next(body[0],guess_move) in body:
+        # print('i will run intomyself')
+        return 9999999
+    
+    if food_dist_me ==1:
+        return -999999
+
+
+
     point = 0 # Assign a weight to each factor 
-    w1 = 0.25 # Weight for food distance of me 
+    w1 = 0.9 # Weight for food distance of me 
     w2 = 0.1 # Weight for food distance of opponent 
-    w3 = 0.3 # Weight for enemy distance 
+    w3 = 0.2 # Weight for enemy distance 
     w4 = 0.1 # Weight for distance from self
     w5 = 0.2 # Weight for distance from wall
     # Calculate the inverse probabilities 
     foodProbability_me = 1 / (1+food_dist_me) 
-    foodProbability_opp = 1 / (1+food_dist_opp) 
+    # foodProbability_opp = 1 / (1+food_dist_opp) 
     enemyProbability = 1 / (1+opp_dist) 
     selfProbability = 1 / (1+self_dist)
     wallProbability = 1 / (1+wall_dist)
-    # Add the weighted probabilities to get the point value 
-    point = w1 * foodProbability_me - w2 * foodProbability_opp - w3 * enemyProbability - w4 * selfProbability - w5 * wallProbability
+    # Add the weighted probabilities to get the point value w2 * foodProbability_opp
+    point = w1 * foodProbability_me  - w3 * enemyProbability - w4 * selfProbability - w5 * wallProbability
     # Penalize states or actions that are too close to the enemy 
     # if opp_dist <= 3: 
     #     point = -1 
     # if(opp_dist <=1):
     #     point = -10000
-    if you_len > opp_len:
-        point = 10000
+    # if you_len > opp_len:
+    #     point = 10000
+    # print('h calc',point)
     return point
 
 
