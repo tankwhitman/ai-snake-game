@@ -73,9 +73,9 @@ def distance_from_food(food, head):
 def distance_from_opp(head, snake):
     dist_list = []
     for part in snake:
-         xdist = abs(head["x"]-part["x"])
-         ydist = abs(head["y"]-part["y"])
-         dist_list.append(xdist+ydist)
+      xdist = abs(head["x"]-part["x"])
+      ydist = abs(head["y"]-part["y"])
+      dist_list.append(xdist+ydist)
     # print("dist list", dist_list)
     return max(dist_list)
     # Calculate distance from our head to the nearest part of the other snake
@@ -122,12 +122,12 @@ def avoid_self(guess_coord, body):
     return True
   
     
-def heuristic_calc(food_dist_me, opp_dist, self_dist, wall_dist, you_len, opp_len, guess_move, body): 
+def heuristic_calc(food_dist_me, opp_dist, self_dist, wall_dist, you_len, opp_len, body): 
     # Highest number will be the best heuristic 
     # print(f"{get_next(body[0],guess_move)} is the next head in {body}")
-    if get_next(body[0],guess_move) in body:
-        # print('i will run intomyself')
-        return 9999999
+    # if get_next(body[0],guess_move) in body:
+    #     # print('i will run intomyself')
+    #     return 9999999
     
     if food_dist_me ==1:
         return -999999
@@ -157,6 +157,8 @@ def heuristic_calc(food_dist_me, opp_dist, self_dist, wall_dist, you_len, opp_le
     #     point = 10000
     # print('h calc',point)
     return point
+
+# add logic that sets point value to really big if any part of your snake is in the opposing snake
 
 
     # create a linked list tree to store all connected moves
