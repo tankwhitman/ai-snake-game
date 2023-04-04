@@ -29,7 +29,7 @@ def info() -> typing.Dict:
         "apiversion": "1",
         "author": "MegaTron Snakinator",  # TODO: Your Battlesnake Username
         "color": "#e1e96b",  # TODO: Choose color
-        "head": "alligator",  # TODO: Choose head
+        "head": "gamer",  # TODO: Choose head
         "tail": "fat-rattle",  # TODO: Choose tail
     }
 
@@ -74,16 +74,8 @@ def moveSnake(snake, move):
 
 
     return snake
-
-            
-
-    
-
-
-
-
-
-def minimax(gameState, depth, maximizingPlayer, bestMove):
+  
+def minimax(gameState, depth, maximizingPlayer):
     # print()
     # print(f"before being called", gameState["you"]["body"], "LEVEL: ", depth, " and the value/move", bestMove)
     # try:
@@ -92,28 +84,24 @@ def minimax(gameState, depth, maximizingPlayer, bestMove):
         return (100, "up")
 
     if depth == 1:
-       
         foodValueList = [] 
         for food in gameState["board"]["food"]:
-            foodValueList.append(heuristic.distance_from_food(food, gameState["board"]['snakes'][0]['body'][0]))
+            foodValueList.append(heuristic.distance_from_food(food, gameState["board"]["snakes"][0]['body'][0]))
         food = min(foodValueList)
         # print(f"With {food} moves from food. my head is at ",gameState['you']['body'][0])
         value = heuristic.heuristic_calc(food,
-                                heuristic.distance_from_opp(gameState["board"]["snakes"][1]["head"], gameState["you"]["body"]),
-                                heuristic.distance_from_opp(gameState["board"]["snakes"][0]["head"], gameState["board"]["snakes"][1]["body"][2:]),
-                                heuristic.distance_from_wall(gameState["board"]["snakes"][1]["head"], gameState["board"]),
-                                gameState["board"]["snakes"][1]["length"],
-                                gameState["you"]["length"],
-                                bestMove,
-                                gameState["you"]["body"])
+                                heuristic.distance_from_opp(gameState["board"]["snakes"][0]["body"][0], gameState["board"]["snakes"][1]["body"]),
+                                heuristic.distance_from_opp(gameState["board"]["snakes"][0]["body"][0], gameState["board"]["snakes"][0]["body"][2:]),
+                                heuristic.distance_from_wall(gameState["board"]["snakes"][0]["body"][0], gameState["board"]),
+                                len(gameState["board"]["snakes"][0]["body"]),
+                                len(gameState["board"]["snakes"][1]["body"]),
+                                gameState["board"]["snakes"][0]["body"])
         # print('best move:', bestMove, "with a value of", value)
-        return (value, bestMove)
+        return value
     # except:
     #     print("game must be over")
     moveResults = {'up': -10000, 'down': -10000, 'left': -10000, 'right': -10000}
     move_option =  heuristic.get_safe_moves( gameState["board"]["snakes"][0]["body"], gameState["board"] )
-    if(depth == 3):
-        print(move_option)
     possibleChildren = []
     for move in move_option:
         newState = copy.deepcopy(gameState)
@@ -128,17 +116,13 @@ def minimax(gameState, depth, maximizingPlayer, bestMove):
         maxEval = -999999
 
         while x < len(possibleChildren):
-            if depth ==3:
-                print("max testing", move_option[x])
-            
-            eval = minimax(possibleChildren[x], depth-1,False,move_option[x])
-            
-
-
-            maxEval = max(maxEval, eval[0])
+            eval = minimax(possibleChildren[x], depth-1,False)
+          
+            maxEval = max(maxEval, eval)
             if(depth == highestDepth):
-                moveResults[eval[1]] = eval[0]
+                moveResults[move_option[x]] = eval
             x=x+1
+          
         if(depth == highestDepth):
           
           bestMove = max(moveResults, key=moveResults.get) 
@@ -152,15 +136,13 @@ def minimax(gameState, depth, maximizingPlayer, bestMove):
         minEval = 999999
         #['down','up', 'left', 'right']
         while x < len(possibleChildren):
-            eval =minimax(possibleChildren[x], depth-1, True,move_option[x])
+            eval =minimax(possibleChildren[x], depth-1, True)
             # print("minimizing IS COMPARING," ,minEval, eval[0])
-            minEval = min(minEval, eval[0])
+            minEval = min(minEval, eval)
             x =x+1
-            # if (value == minimaxResult[0]):
-                # bestMove = minimaxResult[1]
-        
+        return minEval
 
-        return (minEval, bestMove)
+        
 
 
 
@@ -172,7 +154,7 @@ def minimax(gameState, depth, maximizingPlayer, bestMove):
 # See https://docs.battlesnake.com/api/example-move for available data
 def move(game_state: typing.Dict) -> typing.Dict:
 
-    move = minimax(game_state, highestDepth, True,'')
+    move = minimax(game_state, highestDepth, True)
 
     print(f"MOVE {game_state['turn']}: {move[1]} with value of {move[0]} ***************************")
     return {"move": move[1]}
