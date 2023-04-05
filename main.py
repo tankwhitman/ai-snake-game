@@ -84,6 +84,7 @@ def minimax(gameState, depth, maximizingPlayer):
         return (100, "up")
 
     if depth == 1:
+        
         foodValueList = [] 
         for food in gameState["board"]["food"]:
             foodValueList.append(heuristic.distance_from_food(food, gameState["board"]["snakes"][0]['body'][0]))
@@ -95,7 +96,8 @@ def minimax(gameState, depth, maximizingPlayer):
                                 heuristic.distance_from_wall(gameState["board"]["snakes"][0]["body"][0], gameState["board"]),
                                 len(gameState["board"]["snakes"][0]["body"]),
                                 len(gameState["board"]["snakes"][1]["body"]),
-                                gameState["board"]["snakes"][0]["body"])
+                                gameState["board"]["snakes"][0]["body"],
+                                gameState['board']['snakes'][1]['body'])
         # print('best move:', bestMove, "with a value of", value)
         return value
     # except:
@@ -108,8 +110,19 @@ def minimax(gameState, depth, maximizingPlayer):
         # print(newState['snakes'][1])
         newState['board']['snakes'][0] = moveSnake(newState['board']['snakes'][0], move)
         possibleChildren.append(copy.deepcopy(newState))
-
-
+    
+    if depth == highestDepth:
+        print('move options b4', move_option)
+        x=0
+        while x < len(move_option):
+            #len(gameState["board"]["snakes"][0]["body"]))  
+            safe = heuristic.floodFill(gameState["board"]["snakes"][0]["body"][0]['x'],gameState["board"]["snakes"][0]["body"][0]['y'], possibleChildren[x], 0, 4)
+            print (safe)
+            if(safe  < len(gameState["board"]["snakes"][0]["body"])):
+                del possibleChildren[x]
+                del move_option[x]
+            x = x + 1
+        print('move options after', move_option)
     x=0
     if maximizingPlayer:
         
@@ -126,8 +139,11 @@ def minimax(gameState, depth, maximizingPlayer):
         if(depth == highestDepth):
           
           bestMove = max(moveResults, key=moveResults.get) 
-            
+
           maxEval = max(moveResults.values())
+          print(maxEval)
+          print(moveResults)
+          print(move_option)
           if(bestMove in move_option):
             return (maxEval, bestMove)
           return (random.choice(move_option), maxEval)
