@@ -27,7 +27,7 @@ def get_next(current_head, next_move):
 def avoid_walls(next_head, board_width, board_height):
     # Function to check if the coordinates of the next head will hit a wall or not
 
-    print()
+
     x = int(next_head["x"])
     y = int(next_head["y"])
 
@@ -38,7 +38,7 @@ def avoid_walls(next_head, board_width, board_height):
 def avoid_snakes(next_head, snakes):
     result = True
     for snake in snakes:
-        if next_head in snake["body"][:-1]:
+        if next_head in snake["body"][:-1] or distance_from_food(snakes[1]['body'][0],next_head) <2 :
             result = False
             # print("going to runinto an opponent")
     return result
@@ -124,11 +124,19 @@ def avoid_self(guess_coord, body):
 
 def floodFill(x, y, gameState, iters, depth):
     a = {'x': x, 'y': y}
+
     # print(gameState['board']['snakes'][0]['body'])
-    inMe = any(x ==a for a in gameState['board']['snakes'][0]['body'])
-    inOpp = any(x ==a for a in (gameState['board']['snakes'][1]['body']) )
-    print('called ', iters, 'times')
-    if(depth ==0):
+    inMe = False #= any(x == a for a in gameState['board']['snakes'][0]['body'])
+    inOpp = False #any(x ==a for a in (gameState['board']['snakes'][1]['body']) )
+    if iters > 0:    
+        if a in gameState['board']['snakes'][0]['body']:
+            inMe = True
+        if a in gameState['board']['snakes'][1]['body']:
+            inOpp = True
+    
+ 
+    
+    if(depth ==0 or x > 11 or y >11 or x < 0 or y < 0):
         return iters
 
     if( inMe or inOpp or x>gameState['board']['width'] or x < 0 or y> gameState['board']['height'] or y < 0 ):
@@ -136,28 +144,22 @@ def floodFill(x, y, gameState, iters, depth):
     
 
     iters = floodFill(x+1, y, gameState, iters+1, depth -1)
-    iters = iters + floodFill(x-1, y, gameState, iters+1, depth -1)
-    iters = iters + floodFill(x, y+1, gameState,iters+1, depth -1)
-    iters = iters + floodFill(x, y-1, gameState, iters+1, depth-1)
+    iters = floodFill(x-1, y, gameState, iters+1, depth -1)
+    iters = floodFill(x, y+1, gameState,iters+1, depth -1)
+    iters = floodFill(x, y-1, gameState, iters+1, depth-1)
 
     return iters
 
 
 def heuristic_calc(food_dist_me, opp_dist, self_dist, wall_dist, you_len, opp_len, mybody,oppBody): 
     # Highest number will be the best heuristic 
-    # print(f"{get_next(body[0],guess_move)} is the next head in {body}")
-    # if get_next(body[0],guess_move) in body:
-    #     # print('i will run intomyself')
-    #     return 9999999
-    
-    # if food_dist_me ==1:
-    #     return 999999
+   
     
 
 
     out = any(check in mybody for check in oppBody)
     if out:
-        print(oppBody, mybody)
+
         return 100000
     point = 0 # Assign a weight to each factor 
     w1 = 0.9 # Weight for food distance of me 

@@ -60,7 +60,7 @@ def follow(snake, head):
 def moveSnake(snake, move):
     MOVE_LOOKUP = {"left":-1, "right": 1, "up": 1, "down":-1}
     # Copy first
-    # print("before snake head move", snake['you']['body'])
+
 
     future_head = snake['body'][0].copy()
     if move in ["left", "right"]:
@@ -68,7 +68,7 @@ def moveSnake(snake, move):
         future_head["x"] = snake['body'][0]["x"] + MOVE_LOOKUP[move]
     elif move in ["up", "down"]:
         future_head["y"] = snake['body'][0]["y"] + MOVE_LOOKUP[move]
-    # print('before follow', snake['you']['body'])
+
     snake = follow(snake, future_head)
 
 
@@ -76,9 +76,7 @@ def moveSnake(snake, move):
     return snake
   
 def minimax(gameState, depth, maximizingPlayer):
-    # print()
-    # print(f"before being called", gameState["you"]["body"], "LEVEL: ", depth, " and the value/move", bestMove)
-    # try:
+
 
     if len(gameState['board']['snakes']) ==1:
         return (100, "up")
@@ -89,7 +87,6 @@ def minimax(gameState, depth, maximizingPlayer):
         for food in gameState["board"]["food"]:
             foodValueList.append(heuristic.distance_from_food(food, gameState["board"]["snakes"][0]['body'][0]))
         food = min(foodValueList)
-        # print(f"With {food} moves from food. my head is at ",gameState['you']['body'][0])
         value = heuristic.heuristic_calc(food,
                                 heuristic.distance_from_opp(gameState["board"]["snakes"][0]["body"][0], gameState["board"]["snakes"][1]["body"]),
                                 heuristic.distance_from_opp(gameState["board"]["snakes"][0]["body"][0], gameState["board"]["snakes"][0]["body"][2:]),
@@ -98,31 +95,31 @@ def minimax(gameState, depth, maximizingPlayer):
                                 len(gameState["board"]["snakes"][1]["body"]),
                                 gameState["board"]["snakes"][0]["body"],
                                 gameState['board']['snakes'][1]['body'])
-        # print('best move:', bestMove, "with a value of", value)
+
         return value
-    # except:
-    #     print("game must be over")
+
+
     moveResults = {'up': -10000, 'down': -10000, 'left': -10000, 'right': -10000}
     move_option =  heuristic.get_safe_moves( gameState["board"]["snakes"][0]["body"], gameState["board"] )
+
     possibleChildren = []
     for move in move_option:
         newState = copy.deepcopy(gameState)
-        # print(newState['snakes'][1])
+
         newState['board']['snakes'][0] = moveSnake(newState['board']['snakes'][0], move)
         possibleChildren.append(copy.deepcopy(newState))
     
-    if depth == highestDepth:
-        print('move options b4', move_option)
-        x=0
-        while x < len(move_option):
-            #len(gameState["board"]["snakes"][0]["body"]))  
-            safe = heuristic.floodFill(gameState["board"]["snakes"][0]["body"][0]['x'],gameState["board"]["snakes"][0]["body"][0]['y'], possibleChildren[x], 0, 4)
-            print (safe)
-            if(safe  < len(gameState["board"]["snakes"][0]["body"])):
-                del possibleChildren[x]
-                del move_option[x]
-            x = x + 1
-        print('move options after', move_option)
+    # if depth == highestDepth and len(move_option)>1:
+
+    #     x=0
+    #     while x < len(move_option):
+
+    #         safe = heuristic.floodFill(gameState["board"]["snakes"][0]["body"][0]['x'], gameState["board"]["snakes"][0]["body"][0]['y'], possibleChildren[x], 0, 4)
+    #         if(safe  < len(gameState["board"]["snakes"][0]["body"])):
+    #             del possibleChildren[x]
+    #             del move_option[x]
+    #         x = x + 1
+
     x=0
     if maximizingPlayer:
         
@@ -141,9 +138,7 @@ def minimax(gameState, depth, maximizingPlayer):
           bestMove = max(moveResults, key=moveResults.get) 
 
           maxEval = max(moveResults.values())
-          print(maxEval)
-          print(moveResults)
-          print(move_option)
+
           if(bestMove in move_option):
             return (maxEval, bestMove)
           return (random.choice(move_option), maxEval)
@@ -172,7 +167,7 @@ def move(game_state: typing.Dict) -> typing.Dict:
 
     move = minimax(game_state, highestDepth, True)
 
-    print(f"MOVE {game_state['turn']}: {move[1]} with value of {move[0]} ***************************")
+    print(f"MOVE {game_state['turn']}: {move[1]} with value of {move[0]}")
     return {"move": move[1]}
 
 
