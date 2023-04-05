@@ -38,7 +38,7 @@ def avoid_walls(next_head, board_width, board_height):
 def avoid_snakes(next_head, snakes):
     result = True
     for snake in snakes:
-        if next_head in snake["body"][:-1] or distance_from_food(snakes[1]['body'][0],next_head) <2 :
+        if next_head in snake["body"][:-1] or distance_from_food(snakes[1]['body'][0],next_head) == 1:
             result = False
             # print("going to runinto an opponent")
     return result
